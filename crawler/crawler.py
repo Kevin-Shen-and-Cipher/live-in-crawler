@@ -1,7 +1,5 @@
 import string
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
+from webbrowser import Chrome
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -11,7 +9,7 @@ from selenium.webdriver.common.by import By
 class Crawler(object):
 
     def get_chrome(self):
-        return webdriver.Chrome(service=Service(ChromeDriverManager().install()), chrome_options=self.__get_options())
+        return Chrome('./chromedriver', chrome_options=self.__get_options())
 
     def __get_options():
         options = Options()
@@ -22,3 +20,7 @@ class Crawler(object):
         options.add_argument('--disable-gpu')
 
         return options
+
+    def is_element_appeared(chrome: Chrome, By: By, elementName: string):
+        return WebDriverWait(chrome, 10).until(
+            EC.presence_of_element_located((By, elementName)))

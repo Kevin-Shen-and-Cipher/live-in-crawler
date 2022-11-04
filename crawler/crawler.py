@@ -22,7 +22,3 @@ class Crawler(object):
         options.add_argument('--disable-gpu')
 
         return options
-
-    def is_element_appeared(chrome: Chrome, By: By, elementName: string):
-        return WebDriverWait(chrome, 10).until(
-            EC.presence_of_element_located((By, elementName)))

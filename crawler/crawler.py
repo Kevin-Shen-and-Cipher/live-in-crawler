@@ -1,5 +1,7 @@
 import string
-from webbrowser import Chrome
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -9,7 +11,7 @@ from selenium.webdriver.common.by import By
 class Crawler(object):
 
     def get_chrome(self):
-        return Chrome('./chromedriver', chrome_options=self.__get_options())
+        return webdriver.Chrome(service=Service(ChromeDriverManager().install()), chrome_options=self.__get_options())
 
     def __get_options():
         options = Options()

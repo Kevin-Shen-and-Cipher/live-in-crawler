@@ -1,0 +1,30 @@
+[
+    {
+        "model": "apartment.apartmenttype",
+        "pk": 1,
+        "fields": {
+            "name": "公寓"
+        }
+    },
+    {
+        "model": "apartment.apartmenttype",
+        "pk": 2,
+        "fields": {
+            "name": "電梯"
+        }
+    },
+    {
+        "model": "apartment.apartmenttype",
+        "pk": 3,
+        "fields": {
+            "name": "透天"
+        }
+    },
+    {
+        "model": "apartment.apartmenttype",
+        "pk": 4,
+        "fields": {
+            "name": "別墅"
+        }
+    }
+]

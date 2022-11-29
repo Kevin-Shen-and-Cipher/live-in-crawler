@@ -1,0 +1,23 @@
+[
+    {
+        "model": "apartment.facilitytype",
+        "pk": 1,
+        "fields": {
+            "name": "捷運"
+        }
+    },
+    {
+        "model": "apartment.facilitytype",
+        "pk": 2,
+        "fields": {
+            "name": "公車"
+        }
+    },
+    {
+        "model": "apartment.facilitytype",
+        "pk": 3,
+        "fields": {
+            "name": "學校"
+        }
+    }
+]

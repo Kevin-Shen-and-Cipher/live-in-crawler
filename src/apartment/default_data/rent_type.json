@@ -1,0 +1,30 @@
+[
+    {
+        "model": "apartment.renttype",
+        "pk": 1,
+        "fields": {
+            "name": "整層住家"
+        }
+    },
+    {
+        "model": "apartment.renttype",
+        "pk": 2,
+        "fields": {
+            "name": "獨立套房"
+        }
+    },
+    {
+        "model": "apartment.renttype",
+        "pk": 3,
+        "fields": {
+            "name": "分租套房"
+        }
+    },
+    {
+        "model": "apartment.renttype",
+        "pk": 4,
+        "fields": {
+            "name": "雅房"
+        }
+    }
+]

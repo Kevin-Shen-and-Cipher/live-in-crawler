@@ -1,0 +1,30 @@
+[
+    {
+        "model": "apartment.roomtype",
+        "pk": 1,
+        "fields": {
+            "name": "1房"
+        }
+    },
+    {
+        "model": "apartment.roomtype",
+        "pk": 2,
+        "fields": {
+            "name": "2房"
+        }
+    },
+    {
+        "model": "apartment.roomtype",
+        "pk": 3,
+        "fields": {
+            "name": "3房"
+        }
+    },
+    {
+        "model": "apartment.roomtype",
+        "pk": 4,
+        "fields": {
+            "name": "4房以上"
+        }
+    }
+]

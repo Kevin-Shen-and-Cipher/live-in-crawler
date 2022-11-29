@@ -1,0 +1,51 @@
+[
+    {
+        "model": "apartment.device",
+        "pk": 1,
+        "fields": {
+            "name": "冷氣"
+        }
+    },
+    {
+        "model": "apartment.device",
+        "pk": 2,
+        "fields": {
+            "name": "洗衣機"
+        }
+    },
+    {
+        "model": "apartment.device",
+        "pk": 3,
+        "fields": {
+            "name": "冰箱"
+        }
+    },
+    {
+        "model": "apartment.device",
+        "pk": 4,
+        "fields": {
+            "name": "熱水器"
+        }
+    },
+    {
+        "model": "apartment.device",
+        "pk": 5,
+        "fields": {
+            "name": "天然瓦斯"
+        }
+    },
+    {
+        "model": "apartment.device",
+        "pk": 6,
+        "fields": {
+            "name": "網路"
+        }
+    },
+    {
+        "model": "apartment.device",
+        "pk": 7,
+        "fields": {
+            "name": "床"
+        }
+    }
+]

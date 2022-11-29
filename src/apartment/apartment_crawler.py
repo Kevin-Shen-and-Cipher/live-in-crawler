@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
 from dotenv import load_dotenv
+from src.crawler.Crawler import Crawler
 import json
 import os
 
-class ApartmentCrawler(ABC):
+class ApartmentCrawler(ABC, Crawler):
 
     def get_dirstrict(self, district):
         with open("default_data/district.json", encoding="utf-8") as file:

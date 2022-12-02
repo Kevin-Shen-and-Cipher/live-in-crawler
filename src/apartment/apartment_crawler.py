@@ -1,6 +1,8 @@
 from abc import ABC
 from dotenv import load_dotenv
 from src.crawler.Crawler import Crawler
+from selenium.webdriver.common.by import By
+import requests
 import json
 import os
 
@@ -8,7 +10,6 @@ class ApartmentCrawler(ABC, Crawler):
     
     def __init__(self) -> None:
         super().__init__()
-        self.json_path = os.path.join(os.path.dirname(__file__), "aparment_data")
     
     def DMS_to_DD(self, DMS:str):
         coord = DMS.split(" ")
@@ -16,14 +17,14 @@ class ApartmentCrawler(ABC, Crawler):
         return DMS 
     
     def get_dirstrict(self, district):
-        with open(self.json_path + "/district.json", encoding="utf-8") as file:
+        with open("src/apartment/apartment_data/district.json", encoding="utf-8") as file:
             district_data = json.load(file)
         for i in district_data:
             if i["fields"]["name"] == district:
                 return i["pk"]
     
     def get_rent_type(self, rent_type: str):
-        with open("apartment_data/rent_type.json", encoding="utf-8") as file:
+        with open("src/apartment/apartment_data/rent_type.json", encoding="utf-8") as file:
             data = json.load(file)
         if ((rent_type.find("廳") != -1) and (rent_type.find("衛") != -1)) == True:
             rent_type = "整層住家"
@@ -33,7 +34,7 @@ class ApartmentCrawler(ABC, Crawler):
         return None
     
     def get_aparment_type(self, aparment_type: str):
-        with open("apartment_data/apartment_type.json", encoding= "utf-8") as file:
+        with open("src/apartment/apartment_data/apartment_type.json", encoding= "utf-8") as file:
             data = json.load(file)
         for i in data:
             if aparment_type.find(i["fields"]["name"]) != -1:
@@ -41,7 +42,7 @@ class ApartmentCrawler(ABC, Crawler):
         return None
         
     def get_facility_type(self, element):
-        with open("apartment_data/facility_type.json") as file:
+        with open("src/apartment/apartment_data/facility_type.json") as file:
             data = json.load(file)
         return_data = []
         traffic = element[0].find_element(By.CLASS_NAME, "traffic").find_elements(By.TAG_NAME, "dl")
@@ -65,7 +66,7 @@ class ApartmentCrawler(ABC, Crawler):
             return return_data
     
     def get_room_type(self, room_type_list: str):
-        with open("apartment_data/room_type.json", encoding= "utf-8") as file:
+        with open("src/apartment/apartment_data/room_type.json", encoding= "utf-8") as file:
             data = json.load(file)
         for element_data in room_type_list:
             element_text = element_data.text
@@ -81,7 +82,7 @@ class ApartmentCrawler(ABC, Crawler):
         return [1]
     
     def get_restrict(self, service_line: str):
-        with open("apartment_data/restrict.json", encoding="utf-8") as file:
+        with open("src/apartment/apartment_data/restrict.json", encoding="utf-8") as file:
             data = json.load(file)
         return_data = []
         for i in data:
@@ -93,7 +94,7 @@ class ApartmentCrawler(ABC, Crawler):
             return [1]
     
     def get_device(self, device_list: list):
-        with open("apartment_data/device.json", encoding="utf-8") as file:
+        with open("src/apartment/apartment_data/device.json", encoding="utf-8") as file:
             data = json.load(file)
         return_data = []
         for i in device_list:
@@ -107,7 +108,7 @@ class ApartmentCrawler(ABC, Crawler):
         else:
             return [1]
     
-    def post_data(self):
-        load_dotenv()
+    def post_data(self, data):
+        load_dotenv("env")
         url = os.getenv("APARMENTS_URL")
-        print(url)
+        return requests.post(url=url, data=json.dumps(data, ensure_ascii=False))

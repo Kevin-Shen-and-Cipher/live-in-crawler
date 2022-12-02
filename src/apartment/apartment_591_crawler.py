@@ -12,7 +12,6 @@ class Apartment591Carwler(ApartmentCrawler):
 
     def get_dirstrict(self, district):
         district = district.split("區",1)[0] + "區" 
-        print(district)
         return super().get_dirstrict(district)
 
     def get_web_url(self):
@@ -80,8 +79,7 @@ class Apartment591Carwler(ApartmentCrawler):
             
             #get facility section
             data["surrounding_facility"] = self.get_facility_type(self.browser.find_element(By.ID, "surround-map").find_elements(By.CLASS_NAME, "result-list-item"))
-            print(data["surrounding_facility"])
-            # check data error section
+            # check data error sectio
             if self.check_data(data):
                 return None
             else:

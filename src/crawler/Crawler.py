@@ -5,9 +5,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-
 class Crawler(object):
-
     def __init__(self):
         options = self.set_option()
         self.browser = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
@@ -20,8 +18,8 @@ class Crawler(object):
         options.add_argument("--disable-notifications")
         options.add_argument('--user-agent=%s' % user_agent)
         # disable gpu to show web 
-        #options.add_argument('--headless')
-        #options.add_argument('--disable-gpu')
+        options.add_argument('--headless')
+        options.add_argument('--disable-gpu')
         
         return options
 
@@ -42,10 +40,12 @@ class Crawler(object):
     
     def check_data(self, data: dict) -> bool:
         data_error = False
-        for i in data.values():
-            if i == None:
+        for i in data.keys():
+            if data[i] == None:
+                print("%s data is missing" % (i))
                 data_error = True
         if data_error:
             return True
         else:
             return False
+    

@@ -42,7 +42,7 @@ class ApartmentCrawler(ABC, Crawler):
         return None
         
     def get_facility_type(self, element):
-        with open("src/apartment/apartment_data/facility_type.json") as file:
+        with open("src/apartment/apartment_data/facility_type.json", encoding="utf-8") as file:
             data = json.load(file)
         return_data = []
         traffic = element[0].find_element(By.CLASS_NAME, "traffic").find_elements(By.TAG_NAME, "dl")
@@ -109,6 +109,6 @@ class ApartmentCrawler(ABC, Crawler):
             return [1]
     
     def post_data(self, data):
-        load_dotenv("env")
+        load_dotenv(".env")
         url = os.getenv("APARMENTS_URL")
         return requests.post(url=url, data=json.dumps(data, ensure_ascii=False))

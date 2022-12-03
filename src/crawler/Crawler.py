@@ -18,8 +18,8 @@ class Crawler(object):
         options.add_argument("--disable-notifications")
         options.add_argument('--user-agent=%s' % user_agent)
         # disable gpu to show web 
-        options.add_argument('--headless')
-        options.add_argument('--disable-gpu')
+        #options.add_argument('--headless')
+        #options.add_argument('--disable-gpu')
         
         return options
 

@@ -1,0 +1,30 @@
+[
+    {
+        "model": "apartment.restrict",
+        "pk": 1,
+        "fields": {
+            "name": "男女皆可"
+        }
+    },
+    {
+        "model": "apartment.restrict",
+        "pk": 2,
+        "fields": {
+            "name": "限男"
+        }
+    },
+    {
+        "model": "apartment.restrict",
+        "pk": 3,
+        "fields": {
+            "name": "限女"
+        }
+    },
+    {
+        "model": "apartment.restrict",
+        "pk": 4,
+        "fields": {
+            "name": "排除頂樓加蓋"
+        }
+    }
+]

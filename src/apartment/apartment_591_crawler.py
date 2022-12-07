@@ -14,12 +14,12 @@ class Apartment591Carwler(ApartmentCrawler):
         district = district.split("區",1)[0] + "區" 
         return super().get_dirstrict(district)
 
-    def get_web_url(self):
+    def crawler_591(self):
         try:
             for i in self.region:
                 page_row = 0
                 data_count = 0
-                while data_count <= self.data_limit:
+                while data_count < self.data_limit:
                     region_url = "https://rent.591.com.tw/?region=%s&firstRow=%s" % (str(i), str(page_row))
                     self.get_web(url=region_url)
                     # 等待租房列表讀取完成
@@ -33,13 +33,19 @@ class Apartment591Carwler(ApartmentCrawler):
                             break
                         web_data = self.get_web_data(rent_item.find("a", href=True)["href"])
                         if web_data != None:
-                            self.post_data(web_data)
+                            result = self.post_data(web_data)
+                            if result.status_code != 201:
+                                self.post_error(result.text, web_data["url"].split("detail-")[1])
+                                print("web data error" + web_data["url"])
+                                continue
+                            else:
+                                print(result)
                             data_count += 1
                         else:
                             print("data error %s" % rent_item.find("a", href=True)["href"])
-                            continue
                     page_row += 30
-        except:
+        except Exception as e:
+            print(e)
             self.browser.quit()
 
     def get_web_data(self, rent_url:str):
@@ -53,15 +59,15 @@ class Apartment591Carwler(ApartmentCrawler):
             house_content = self.browser.find_element(By.CLASS_NAME, "left-con")
             house_info = house_content.find_element(By.XPATH, "//section[@class='house-info']")
             data["name"] = house_info.find_element(By.XPATH, "//div[@class='house-title']//h1").text
-            data["price"] = house_info.find_element(By.XPATH, "//div[@class='house-price']//span[@class='price']//b").text
+            data["price"] = int(house_info.find_element(By.XPATH, "//div[@class='house-price']//span[@class='price']//b").text.replace(",", ""))
             data["address"] = house_content.find_element(By.CLASS_NAME, "load-map").text
-            data["dirstrict"] = self.get_dirstrict(data["address"])
+            data["district"] = (self.get_dirstrict(data["address"]))
             data["coordinate"] = self.DMS_to_DD(house_content.find_element(By.CSS_SELECTOR, "div.lat-lng").get_attribute("innerHTML").replace("\'", "'"))
             
             #house pattern section 
             house_pattern = house_info.find_element(By.CLASS_NAME, "house-pattern").find_elements(By.TAG_NAME, "span")
             data["rent_type"] = self.get_rent_type(house_pattern[0].text)
-            data["aparment_type"] = self.get_aparment_type(house_pattern[len(house_pattern)-1].text)
+            data["apartment_type"] = self.get_aparment_type(house_pattern[len(house_pattern)-1].text)
             data["room_type"] = self.get_room_type(house_pattern)
             
             #get restrict section

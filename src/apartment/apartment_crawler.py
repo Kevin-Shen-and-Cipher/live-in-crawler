@@ -13,7 +13,7 @@ class ApartmentCrawler(ABC, Crawler):
     
     def DMS_to_DD(self, DMS:str):
         coord = DMS.split(" ")
-        DMS = "N%s E%s" % (str(int(coord[0].split("°")[0])+int(coord[0].split("°")[1].split("'")[0])/60+int(coord[0].split("°")[1].split("'")[1].split("\"")[0])/3600), str(int(coord[1].split("°")[0])+int(coord[1].split("°")[1].split("'")[0])/60+int(coord[1].split("°")[1].split("'")[1].split("\"")[0])/3600))
+        DMS = "%s,%s" % (str(int(coord[0].split("°")[0])+int(coord[0].split("°")[1].split("'")[0])/60+int(coord[0].split("°")[1].split("'")[1].split("\"")[0])/3600), str(int(coord[1].split("°")[0])+int(coord[1].split("°")[1].split("'")[0])/60+int(coord[1].split("°")[1].split("'")[1].split("\"")[0])/3600))
         return DMS 
     
     def get_dirstrict(self, district):
@@ -63,6 +63,9 @@ class ApartmentCrawler(ABC, Crawler):
         if len(return_data) == 0:
             return None
         else:
+            for i in return_data:
+                if i == {}:
+                    return None
             return return_data
     
     def get_room_type(self, room_type_list: str):
@@ -79,7 +82,7 @@ class ApartmentCrawler(ABC, Crawler):
                 return None
             else:
                 continue
-        return [1]
+        return 1
     
     def get_restrict(self, service_line: str):
         with open("src/apartment/apartment_data/restrict.json", encoding="utf-8") as file:
@@ -111,4 +114,9 @@ class ApartmentCrawler(ABC, Crawler):
     def post_data(self, data):
         load_dotenv(".env")
         url = os.getenv("APARMENTS_URL")
-        return requests.post(url=url, data=json.dumps(data, ensure_ascii=False))
+        return requests.post(url=url, headers={'Content-type': 'application/json'}, data=json.dumps(data, ensure_ascii=False).encode('utf-8'))
+
+    def post_error(self, response, data_number):
+        f = open(("error_log/error_status_%s"% (data_number)), "w", encoding="utf-8")
+        f.write(response)
+        f.close()

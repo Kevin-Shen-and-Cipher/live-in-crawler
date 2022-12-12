@@ -1,0 +1,30 @@
+[
+    {
+        "model": "job.jobposition",
+        "pk": 1,
+        "fields": {
+            "name": "軟體工程師"
+        }
+    },
+    {
+        "model": "job.jobposition",
+        "pk": 2,
+        "fields": {
+            "name": "演算法工程師"
+        }
+    },
+    {
+        "model": "job.jobposition",
+        "pk": 3,
+        "fields": {
+            "name": "前端工程師"
+        }
+    },
+    {
+        "model": "job.jobposition",
+        "pk": 4,
+        "fields": {
+            "name": "後端工程師"
+        }
+    }
+]

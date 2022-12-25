@@ -1,0 +1,16 @@
+[
+  {
+    "model": "job.city",
+    "pk": 1,
+    "fields": {
+      "name": "臺北市"
+    }
+  },
+  {
+    "model": "job.city",
+    "pk": 3,
+    "fields": {
+      "name": "新北市"
+    }
+  }
+]

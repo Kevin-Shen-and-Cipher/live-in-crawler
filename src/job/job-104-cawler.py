@@ -10,5 +10,12 @@ class Job104Carwler(JobCrawler):
 
     def get_web_data(self, chrome):
         result = 0
-
         return result
+    
+    def get_dirstrict(self, district):
+        with open("src/apartment/apartment_data/district.json", encoding="utf-8") as file:
+            district_data = json.load(file)
+        for i in district_data:
+            if i["fields"]["name"] == district:
+                return i["pk"]
+        return None

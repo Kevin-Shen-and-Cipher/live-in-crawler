@@ -1,0 +1,44 @@
+[
+    {
+        "model": "job.workinghour",
+        "pk": 1,
+        "fields": {
+            "name": "日班"
+        }
+    },
+    {
+        "model": "job.workinghour",
+        "pk": 2,
+        "fields": {
+            "name": "晚班"
+        }
+    },
+    {
+        "model": "job.workinghour",
+        "pk": 3,
+        "fields": {
+            "name": "大夜班"
+        }
+    },
+    {
+        "model": "job.workinghour",
+        "pk": 4,
+        "fields": {
+            "name": "假日班"
+        }
+    },
+    {
+        "model": "job.workinghour",
+        "pk": 5,
+        "fields": {
+            "name": "輪班"
+        }
+    },
+    {
+        "model": "job.workinghour",
+        "pk": 6,
+        "fields": {
+            "name": "不須輪班"
+        }
+    }
+]

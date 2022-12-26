@@ -2,6 +2,7 @@ from src.job.job_crawler import job_crawler
 from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
 import traceback
+import re
 import time
 import json
 
@@ -18,11 +19,12 @@ class job_1111_crawler(job_crawler):
     
     def job_link(self):
         for i in self.region:
-            data_count = 0
+            data_count = 1
             page_row = 1
             data_b = 1
-            while data_count < self.data_limit:
-                try:
+            break_flag = True
+            try:
+                while data_count <= self.data_limit:
                     region_url=("https://www.1111.com.tw/search/job?c0=100{}&d0=140802%2C140803%2C140202&page={}").format(str(i), str(page_row))
                     self.get_web(region_url)
                     if self.wait_element(By.CLASS_NAME,"job-list-item"):
@@ -32,28 +34,30 @@ class job_1111_crawler(job_crawler):
                     rent_list = page_element.find("div", {"data-b": data_b})
                     rent_list = rent_list.find_all("div", {"class": "job_item_info"})                 
                     for job_item in rent_list:
-                        print(self.get_web_data(job_item.find_all("a", href=True)[0]["href"]))
-                    #for rent_item in rent_list:
-                    #    if data_count >=self.data_limit:
-                    #        break
-                    #    web_data = self.get_web_data(rent_item.find("a", href=True)["href"])
-                    #    print(web_data)
-                        # if web_data != None:
-                        #     result=self.post_data(web_data)
-                        #     if result.status_code != 201:
-                        #         self.post_error(result.text.web_data["url"].split("/job/")[1])
-                        #         print("web data error" + web_data ["url"])
-                        #         continue
-                        #     else:
-                        #         print(result)
-                        #     data_count +=1
-                        # else:
-                        #     print("data error %s" % rent_item.find("a", href=True)["href"])
+                        if data_count > self.data_limit:
+                            exit()
+                        web_data = self.get_web_data(job_item.find_all("a", href=True)[0]["href"])
+                        if web_data != None and self.check_data:
+                            try:
+                                result=self.post_data(web_data)
+                                if result.status_code != 201:
+                                    self.post_error(result.text,web_data["url"].split("/job/")[1].replace("/", ''))
+                                    print("web data error" + web_data ["url"])
+                                    continue
+                                else:
+                                    print(result)
+                                data_count +=1
+                            except:
+                                print("post error")
+                        else:
+                            print("data error")
                     page_row += 1
                     data_b += 20
-                except Exception as e:
-                    self.browser.quit()
-                    exit()
+                self.browser.quit()
+            except Exception as e:
+                traceback.print_exc()
+                self.browser.quit()
+                exit()
         
         
 
@@ -72,11 +76,15 @@ class job_1111_crawler(job_crawler):
 
             data["salary"]=self.get_salary((self.browser.find_element(By.CLASS_NAME,"job_salary").text))
             
-            data["tenure"]=self.browser.find_element(By.CLASS_NAME,"data_trans").find_element(By.CLASS_NAME,"applicants").text.replace("\n",'')[4:]
-            
+            tenure_data = self.browser.find_element(By.XPATH, "//div[@class='content_items job_skill']//div[@class = 'body_2 description_info']//span[@class='job_info_content']").text
+            try:
+                if tenure_data == "不拘":
+                    data["tenure"] = 0
+                else:
+                    data["tenure"] = int(tenure_data.replace("年以上工作經驗", ""))
+            except:
+                print("tenure error {}".format(tenure_data))
             data["address"]=address[4].find_element(By.CLASS_NAME,"job_info_content").text
-            
-            data["URL"]=self.browser.find_element(By.NAME,"twitter:url").get_attribute('Content')
             
             data["district"]=self.get_dirstrict(data["address"].split(" ")[1])
 
@@ -87,18 +95,38 @@ class job_1111_crawler(job_crawler):
                     data["job_position"] = pk
 
             #work_hour
-            data["work_hour"]=self.working_hour((address[0]).text.replace('\n'," "))
+            data["working_hour"]=self.working_hour((address[0]).text.replace('\n'," "))
             
-            #benfit
+            data["benefit"] = []
+            #benfit don't know why but this way is only way it can get the benefit
             benefitlist=self.browser.find_elements(By.XPATH,"//div[@class='content_items job_benefits']")
-            for i in benefitlist:
-                if i.find_element(By.XPATH, "//h6[@class='title_6 title spy_item']").text == "職缺福利":
-                    print(benefitlist.find_element(By.CLASS_NAME, "body_2").text)
-            
+            if len(benefitlist) == 1 or len(benefitlist) == 2:
+                try:
+                    benetfit_data = benefitlist[len(benefitlist)-1]
+                    try:
+                        benefit_content = benetfit_data.find_element(By.CLASS_NAME, "body_2").text.split("更多說明：")[0].split("福利制度：")[1].replace(" ", "")
+                    except:
+                        return None
+                    temp = re.sub("\S{3}：", "text" ,benefit_content)
+                    temp = temp.replace("\n", " ").replace(" text ", "、").split("、")
+                    for k in temp:
+                        if k != "":
+                            data["benefit"].append({"name":k})
+                except:
+                    traceback.print_exc()
+                    return None
+            else:
+                data["benefit"] == None
+            try:
+                company_link = self.browser.find_element(By.XPATH, "//a[@class='ui_card_company_link']").get_attribute('href')
+                self.browser.get(company_link)
+                map_url = self.browser.find_element(By.XPATH, "/html/body/main/div[6]/div[1]/div[2]/div[1]/div/div[1]/ul/li[2]/a").get_attribute('href')
+            except:
+                return None
+            data["coordinate"] = map_url.split("?q=")[1]
             return data
         except Exception as e:
             traceback.print_exc()
-            print(data)
             with open("error_log", 'w') as file:
                 file.write("{} {}\n{}".format(data["name"], data["url"], e))
             return data["url"]

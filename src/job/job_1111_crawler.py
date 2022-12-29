@@ -10,7 +10,7 @@ import json
 
 class job_1111_crawler(job_crawler):
     def __init__(self):
-        self.region = [100,200]
+        self.region = [200]
         super().__init__()
     
     def get_dirstrict(self, district):
@@ -77,7 +77,8 @@ class job_1111_crawler(job_crawler):
             data["name"]=self.browser.find_element(By.CLASS_NAME,"title_4").text
 
             data["salary"]=self.get_salary((self.browser.find_element(By.XPATH,"//div[@class='ui_items job_salary']//p[@class='body_2']").text))
-
+            if data["salary"] == None:
+                return None
             tenure_data = self.browser.find_element(By.XPATH, "//div[@class='content_items job_skill']//div[@class = 'body_2 description_info']//span[@class='job_info_content']").text
             try:
                 if tenure_data == "不拘":

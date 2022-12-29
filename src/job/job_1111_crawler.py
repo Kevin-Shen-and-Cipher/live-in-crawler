@@ -22,9 +22,9 @@ class job_1111_crawler(job_crawler):
             data_count = 1
             page_row = 1
             data_b = 1
-            break_flag = True
-            try:
-                while data_count <= self.data_limit:
+            error_flag = 0
+            while data_count <= self.data_limit:
+                try:
                     region_url=("https://www.1111.com.tw/search/job?c0=100{}&d0=140802%2C140803%2C140202&page={}").format(str(i), str(page_row))
                     self.get_web(region_url)
                     if self.wait_element(By.CLASS_NAME,"job-list-item"):
@@ -37,27 +37,29 @@ class job_1111_crawler(job_crawler):
                         if data_count > self.data_limit:
                             exit()
                         web_data = self.get_web_data(job_item.find_all("a", href=True)[0]["href"])
-                        if web_data != None and self.check_data:
+                        if web_data != None and self.check_data(web_data) == False:
                             try:
                                 result=self.post_data(web_data)
                                 if result.status_code != 201:
                                     self.post_error(result.text,web_data["url"].split("/job/")[1].replace("/", ''))
-                                    print("web data error" + web_data ["url"])
+                                    print("request failed! " + web_data ["url"])
                                     continue
                                 else:
                                     print(result)
+                                    error_flag = 0
                                 data_count +=1
                             except:
                                 print("post error")
-                        else:
-                            print("data error")
                     page_row += 1
                     data_b += 20
-                self.browser.quit()
-            except Exception as e:
-                traceback.print_exc()
-                self.browser.quit()
-                exit()
+                except Exception as e:
+                    if error_flag >=3:
+                        self.browser.quit()
+                        exit()
+                    error_flag += 1
+                    traceback.print_exc()
+                    continue
+        self.browser.quit()
         
         
 
@@ -74,8 +76,8 @@ class job_1111_crawler(job_crawler):
             address=self.browser.find_elements(By.CLASS_NAME,"align-items-top")
             data["name"]=self.browser.find_element(By.CLASS_NAME,"title_4").text
 
-            data["salary"]=self.get_salary((self.browser.find_element(By.CLASS_NAME,"job_salary").text))
-            
+            data["salary"]=self.get_salary((self.browser.find_element(By.XPATH,"//div[@class='ui_items job_salary']//p[@class='body_2']").text))
+
             tenure_data = self.browser.find_element(By.XPATH, "//div[@class='content_items job_skill']//div[@class = 'body_2 description_info']//span[@class='job_info_content']").text
             try:
                 if tenure_data == "不拘":

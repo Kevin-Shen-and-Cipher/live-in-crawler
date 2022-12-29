@@ -7,4 +7,4 @@ from src.job.job_1111_crawler import job_1111_crawler
 # data = ApartmentHappy.get_web_url()
 job_1111_crawler = job_1111_crawler()
 job_1111_crawler.job_link()
-#print(job_1111_crawler.get_web_data("https://www.1111.com.tw/job/99059253/"))  
+#print(job_1111_crawler.get_web_data("https://www.1111.com.tw/job/91416768/"))

@@ -30,9 +30,21 @@ class job_crawler(ABC, Crawler):
         return None
     
     def get_salary(self,salary):
-        s1 = re.findall(r'\d+', salary)
-        s2=int(s1[0]+"0000")
-        return s2
+        if salary.find("月薪") > -1:
+            if salary.find("萬") > -1:
+                job_salary = re.findall(r'\d+\.?\d*', salary.split("萬")[0])[0]
+                try:
+                    if job_salary.find(".") > -1:
+                        job_salary = job_salary.replace(".", "")
+                        job_salary = int(job_salary + "000")
+                    else:
+                        job_salary = int(job_salary + "0000")
+                    if job_salary != 0:
+                        return job_salary
+                except Exception as e:
+                    print(e)
+                    return None
+        return None
     
     def working_hour(self,work):
         with open("src/job/job_data/working_hour.json",encoding="utf-8") as file:
@@ -60,6 +72,7 @@ class job_crawler(ABC, Crawler):
         return requests.post(url=url, headers={'Content-type': 'application/json'}, data=json.dumps(data, ensure_ascii=False).encode('utf-8'))
 
     def post_error(self, response, data_number):
-        f = open(("error_log/error_status_%s.html"% (data_number)), "w", encoding="utf-8")
+        f = open(("error_log/error_status.txt"), "a", encoding="utf-8")
+        f.write("\ndata_number {} : ".format(data_number))
         f.write(response)
         f.close()

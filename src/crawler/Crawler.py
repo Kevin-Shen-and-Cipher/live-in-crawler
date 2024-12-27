@@ -9,8 +9,13 @@ from selenium.webdriver.support.wait import WebDriverWait
 class Crawler(object):
     def __init__(self):
         options = self.set_option()
+<<<<<<< HEAD
         self.browser = webdriver.Chrome(options=options)
         self.data_limit = 2
+=======
+        self.browser = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+        self.data_limit = 10
+>>>>>>> 035a56d (fix: crawler)
         self.data = []
 
     def set_option(self):

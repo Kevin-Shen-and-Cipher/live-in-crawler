@@ -14,10 +14,11 @@ class job_crawler(ABC, Crawler):
         self.data_limit= 90
     
     def job_position(self,job: str):
+        print(job)
         with open("src/job/job_data/job_position.json",encoding="utf-8") as file:
             job_data=json.load(file)
         for i in job_data:
-            if i["fields"]["name"]==job:
+            if i["fields"]["name"] in job:
                 return i["pk"]
         return None        
     
@@ -29,7 +30,15 @@ class job_crawler(ABC, Crawler):
                 return i["pk"]
         return None
     
+    # 只回傳薪水
     def get_salary(self,salary):
+
+        if "以上" in salary:
+            return 40000
+        print(salary)
+        if "月薪" in salary: 
+            return int(salary[4:10].replace(",", ""))
+        return None 
         if salary.find("月薪") > -1:
             if salary.find("萬") > -1:
                 job_salary = re.findall(r'\d+\.?\d*', salary.split("萬")[0])[0]
@@ -67,8 +76,10 @@ class job_crawler(ABC, Crawler):
         return None
 
     def post_data(self, data):
-        load_dotenv(".env")
+        load_dotenv(".env", override=True)
         url = os.getenv("JOBS_URL")
+        print(url)
+        # print(json.dumps(data, ensure_ascii=False).encode('utf-8'))
         return requests.post(url=url, headers={'Content-type': 'application/json'}, data=json.dumps(data, ensure_ascii=False).encode('utf-8'))
 
     def post_error(self, response, data_number):

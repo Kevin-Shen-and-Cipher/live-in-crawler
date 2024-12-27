@@ -1,11 +1,13 @@
 from src.job.job_crawler import job_crawler
 from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
+from selenium.webdriver.support.ui import WebDriverWait
 import traceback
 import re
 import time
 import json
-
+from selenium.webdriver.support import expected_conditions as EC
+from selenium import webdriver
 
 
 class job_1111_crawler(job_crawler):
@@ -23,23 +25,32 @@ class job_1111_crawler(job_crawler):
             page_row = 1
             data_b = 1
             error_flag = 0
+            flag = 1; 
+            # while data_count <= self.data_limit:
             while data_count <= self.data_limit:
+                print(data_count)
+                flag = 0 
                 try:
-                    region_url=("https://www.1111.com.tw/search/job?c0=100{}&d0=140802%2C140803%2C140202&page={}").format(str(i), str(page_row))
+                    # region_url=("https://www.1111.com.tw/search/job?c0=100{}&d0=140802%2C140803%2C140202&page={}").format(str(i), str(page_row))
+                    
+                    # 查詢雙北地區、軟體工程師等
+                    region_url=("https://www.1111.com.tw/search/job?d0=140202%2C140802%2C140803&c0=100100%2C100200&page={}").format(str(page_row))
                     self.get_web(region_url)
-                    if self.wait_element(By.CLASS_NAME,"job-list-item"):
+                    if self.wait_element(By.CLASS_NAME,"search-content"):
                         print("Can not connect to the page %s, please check the internet status or 591 connection block" % (region_url))
                         exit(0)
                     page_element = BeautifulSoup(self.browser.page_source, "html.parser")
-                    rent_list = page_element.find("div", {"data-b": data_b})
-                    rent_list = rent_list.find_all("div", {"class": "job_item_info"})                 
+                    rent_list = page_element.find("div", {"class": "search-content"})
+                    rent_list = rent_list.find_all("div", {"class": "job-card__content"})                 
                     for job_item in rent_list:
                         if data_count > self.data_limit:
                             exit()
-                        web_data = self.get_web_data(job_item.find_all("a", href=True)[0]["href"])
-                        if web_data != None and self.check_data(web_data) == False:
+                        web_data = self.get_web_data("https://www.1111.com.tw" + job_item.find_all("a", href=True)[0]["href"])
+                        # if web_data != None and self.check_data(web_data) == False:
+                        if web_data != None: # test benefit 的資料取消掉，無視它
                             try:
                                 result=self.post_data(web_data)
+                                print( "api response ", result.status_code )
                                 if result.status_code != 201:
                                     self.post_error(result.text,web_data["url"].split("/job/")[1].replace("/", ''))
                                     print("request failed! " + web_data ["url"])
@@ -70,16 +81,16 @@ class job_1111_crawler(job_crawler):
             self.browser.get(job_url)
             data={}
             data["url"]=job_url
-            if self.wait_element(By.CLASS_NAME, "col-sm-8"):
+            if self.wait_element(By.XPATH, "//*[@id=\"WORK_CONTENT\"]/div/div[7]/div/div/div/iframe"):
                 print("page %s not found!" % (data["url"]))
                 return None
-            address=self.browser.find_elements(By.CLASS_NAME,"align-items-top")
-            data["name"]=self.browser.find_element(By.CLASS_NAME,"title_4").text
-
-            data["salary"]=self.get_salary((self.browser.find_element(By.XPATH,"//div[@class='ui_items job_salary']//p[@class='body_2']").text))
+            # address=self.browser.find_elements(By.CLASS_NAME,"mb-4")
+            data["name"]=self.browser.find_element(By.XPATH,'//*[@id="COMPANY_INFO"]/div[1]/div[1]/div/a/p').text
+            
+            data["salary"]=self.get_salary((self.browser.find_element(By.XPATH,'//*[@id="WORK_CONTENT"]/div/div[2]/div/div/div').text))
             if data["salary"] == None:
                 return None
-            tenure_data = self.browser.find_element(By.XPATH, "//div[@class='content_items job_skill']//div[@class = 'body_2 description_info']//span[@class='job_info_content']").text
+            tenure_data = self.browser.find_element(By.XPATH, '//*[@id="REQUIREMENTS"]/div/div[3]/p[2]').text
             try:
                 if tenure_data == "不拘":
                     data["tenure"] = 0
@@ -87,46 +98,67 @@ class job_1111_crawler(job_crawler):
                     data["tenure"] = int(tenure_data.replace("年以上工作經驗", ""))
             except:
                 print("tenure error {}".format(tenure_data))
-            data["address"]=address[4].find_element(By.CLASS_NAME,"job_info_content").text
             
-            data["district"]=self.get_dirstrict(data["address"].split(" ")[1])
+            # 有時候商家會把供
+            try: 
+                data["address"]=self.browser.find_element(By.XPATH,'//*[@id="WORK_CONTENT"]/div/div[7]/div/div/p').text
+            except: 
+                data["address"]=self.browser.find_element(By.XPATH,'//*[@id="WORK_CONTENT"]/div/div[6]/div/div/p').text
+            try: 
+                district = self.browser.find_element(By.XPATH,'//*[@id="__nuxt"]/div/main/div/div[1]/div/div/div[2]/div[1]/div[3]/div').text
+                data["district"]=self.get_dirstrict(data["address"][3:6])
+            except: 
+                return None
+            if(data["district"] == None):
+                return None 
 
-            job_position = address[3].text.replace('\n','')[5:].split("、")
-            for position in job_position:
-                pk = self.job_position(position)
-                if pk != None:
-                    data["job_position"] = pk
+            job_position = self.browser.find_element(By.XPATH,'//*[@id="__nuxt"]/div/main/div/div[1]/div/div/div[2]/h1').text
+            print(job_position)
+            pk = self.job_position(job_position)
+            if pk != None:
+                data["job_position"] = pk
+            else: 
+                return None
 
             #work_hour
-            data["working_hour"]=self.working_hour((address[0]).text.replace('\n'," "))
-            
+            data["working_hour"]= self.working_hour(self.browser.find_element(By.XPATH,'//*[@id="WORK_CONTENT"]/div/div[5]/div/ul/li/p').text)
             data["benefit"] = []
+            print("working_hour ", data)
+            # benefit 不做
             #benfit don't know why but this way is only way it can get the benefit
-            benefitlist=self.browser.find_elements(By.XPATH,"//div[@class='content_items job_benefits']")
-            if len(benefitlist) == 1 or len(benefitlist) == 2:
-                try:
-                    benetfit_data = benefitlist[len(benefitlist)-1]
-                    try:
-                        benefit_content = benetfit_data.find_element(By.CLASS_NAME, "body_2").text.split("更多說明：")[0].split("福利制度：")[1].replace(" ", "")
-                    except:
-                        return None
-                    temp = re.sub("\S{3}：", "text" ,benefit_content)
-                    temp = temp.replace("\n", " ").replace(" text ", "、").split("、")
-                    for k in temp:
-                        if k != "":
-                            data["benefit"].append({"name":k})
-                except:
-                    traceback.print_exc()
-                    return None
-            else:
-                data["benefit"] == None
-            try:
-                company_link = self.browser.find_element(By.XPATH, "//a[@class='ui_card_company_link']").get_attribute('href')
-                self.browser.get(company_link)
-                map_url = self.browser.find_element(By.XPATH, "/html/body/main/div[6]/div[1]/div[2]/div[1]/div/div[1]/ul/li[2]/a").get_attribute('href')
-            except:
-                return None
-            data["coordinate"] = map_url.split("?q=")[1]
+            # benefitlist=self.browser.find_elements(By.XPATH,"//div[@class='content_items job_benefits']")
+            # if len(benefitlist) == 1 or len(benefitlist) == 2:
+            #     try:
+            #         benetfit_data = benefitlist[len(benefitlist)-1]
+            #         try:
+            #             benefit_content = benetfit_data.find_element(By.CLASS_NAME, "body_2").text.split("更多說明：")[0].split("福利制度：")[1].replace(" ", "")
+            #         except:
+            #             return None
+            #         temp = re.sub("\S{3}：", "text" ,benefit_content)
+            #         temp = temp.replace("\n", " ").replace(" text ", "、").split("、")
+            #         for k in temp:
+            #             if k != "":
+            #                 data["benefit"].append({"name":k})
+            #     except:
+            #         traceback.print_exc()
+            #         return None
+            # else:
+            #     data["benefit"] == None
+
+            ## 因為他有時候在 6, 有時候在 7
+            try: 
+                iframe = self.browser.find_element(By.XPATH, "//*[@id=\"WORK_CONTENT\"]/div/div[7]/div/div/div/iframe")  
+                self.browser.switch_to.frame(iframe)
+                map_url = self.browser.find_element(By.XPATH, '//*[@id="mapDiv"]/div/div[3]/div[3]/div/div/div/div/div[1]/div').text
+            except: 
+                iframe = self.browser.find_element(By.XPATH, "//*[@id=\"WORK_CONTENT\"]/div/div[6]/div/div/div/iframe")  
+                self.browser.switch_to.frame(iframe)
+                map_url = self.browser.find_element(By.XPATH, '//*[@id="mapDiv"]/div/div[3]/div[3]/div/div/div/div/div[1]/div').text
+            self.browser.switch_to.default_content()
+
+            # 轉換座標 ex: 23°57'01.3"N 120°55'49.6"E 為 23.57013,120.55496
+            data["coordinate"] = map_url.replace(".", "").replace('"', "").replace("N", "").replace("E", "").replace("'", "")
+            data["coordinate"] = data["coordinate"].replace("°", ".").replace(" ", ",")
             return data
         except Exception as e:
             traceback.print_exc()

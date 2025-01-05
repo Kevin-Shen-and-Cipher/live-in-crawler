@@ -1,0 +1,15 @@
+services:
+  live-in-crawler:
+    image: python:3.12-bookworm
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+    tty: true
+    volumes:
+      - .:/app
+    networks:
+      - live_in_network
+
+networks:
+  live_in_network:
+    external: true

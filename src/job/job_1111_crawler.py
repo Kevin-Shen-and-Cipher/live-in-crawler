@@ -113,7 +113,7 @@ class job_1111_crawler(job_crawler):
                 return None 
 
             job_position = self.browser.find_element(By.XPATH,'//*[@id="__nuxt"]/div/main/div/div[1]/div/div/div[2]/h1').text
-            print(job_position)
+            # print(job_position)
             pk = self.job_position(job_position)
             if pk != None:
                 data["job_position"] = pk
@@ -123,7 +123,7 @@ class job_1111_crawler(job_crawler):
             #work_hour
             data["working_hour"]= self.working_hour(self.browser.find_element(By.XPATH,'//*[@id="WORK_CONTENT"]/div/div[5]/div/ul/li/p').text)
             data["benefit"] = []
-            print("working_hour ", data)
+            # print("working_hour ", data)
             # benefit 不做
             #benfit don't know why but this way is only way it can get the benefit
             # benefitlist=self.browser.find_elements(By.XPATH,"//div[@class='content_items job_benefits']")
@@ -148,17 +148,22 @@ class job_1111_crawler(job_crawler):
             ## 因為他有時候在 6, 有時候在 7
             try: 
                 iframe = self.browser.find_element(By.XPATH, "//*[@id=\"WORK_CONTENT\"]/div/div[7]/div/div/div/iframe")  
-                self.browser.switch_to.frame(iframe)
-                map_url = self.browser.find_element(By.XPATH, '//*[@id="mapDiv"]/div/div[3]/div[3]/div/div/div/div/div[1]/div').text
+                map_url = iframe.get_attribute('src')[-22:]
+                print("found ", map_url)
             except: 
-                iframe = self.browser.find_element(By.XPATH, "//*[@id=\"WORK_CONTENT\"]/div/div[6]/div/div/div/iframe")  
-                self.browser.switch_to.frame(iframe)
-                map_url = self.browser.find_element(By.XPATH, '//*[@id="mapDiv"]/div/div[3]/div[3]/div/div/div/div/div[1]/div').text
+                try: 
+                    self.browser.switch_to.default_content()
+                    iframe = self.browser.find_element(By.XPATH, "//*[@id=\"WORK_CONTENT\"]/div/div[6]/div/div/div/iframe")  
+                    map_url = iframe.get_attribute('src')[-22]
+                    print("found ", map_url)
+                except:
+                    print("not found google map on ", data["url"])
+                    return None
             self.browser.switch_to.default_content()
+            
+            data["coordinate"] = map_url
+            print(data)
 
-            # 轉換座標 ex: 23°57'01.3"N 120°55'49.6"E 為 23.57013,120.55496
-            data["coordinate"] = map_url.replace(".", "").replace('"', "").replace("N", "").replace("E", "").replace("'", "")
-            data["coordinate"] = data["coordinate"].replace("°", ".").replace(" ", ",")
             return data
         except Exception as e:
             traceback.print_exc()

@@ -3,3 +3,4 @@ __pycache__
 *.pyc
 error_status*.html
 venv
+error_log/error_status.txt

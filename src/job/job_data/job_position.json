@@ -17,14 +17,14 @@
     "model": "job.jobposition",
     "pk": 3,
     "fields": {
-      "name": "前端開發工程師"
+      "name": "前端"
     }
   },
   {
     "model": "job.jobposition",
     "pk": 4,
     "fields": {
-      "name": "後端開發工程師"
+      "name": "後端"
     }
   }
 ]

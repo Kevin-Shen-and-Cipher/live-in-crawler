@@ -226,10 +226,9 @@ class ApartmentCrawler(ABC, Crawler):
         return 1
 
     def post_data(self, data):
-        load_dotenv("/app/.env")
-
+        load_dotenv(".env", override=True)
         url = os.getenv("APARMENTS_URL")
-
+        print("url ", url)
         return requests.post(
             url=url,
             headers={"Content-type": "application/json"},

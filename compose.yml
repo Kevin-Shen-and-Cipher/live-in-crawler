@@ -1,6 +1,8 @@
 services:
   live-in-crawler:
-    image: python:3.12-bookworm
+    build:
+      context: .
+      dockerfile: Dockerfile
     environment:
       - PYTHONDONTWRITEBYTECODE=1
       - PYTHONUNBUFFERED=1

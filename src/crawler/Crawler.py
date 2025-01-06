@@ -10,7 +10,7 @@ class Crawler(object):
     def __init__(self):
         options = self.set_option()
         self.browser = webdriver.Chrome(options=options)
-        self.data_limit = 2
+        self.data_limit = 100
         self.data = []
 
     def set_option(self):

@@ -154,7 +154,7 @@ class job_1111_crawler(job_crawler):
                 try: 
                     self.browser.switch_to.default_content()
                     iframe = self.browser.find_element(By.XPATH, "//*[@id=\"WORK_CONTENT\"]/div/div[6]/div/div/div/iframe")  
-                    map_url = iframe.get_attribute('src')[-22]
+                    map_url = iframe.get_attribute('src')[-22:]
                     print("found ", map_url)
                 except:
                     print("not found google map on ", data["url"])

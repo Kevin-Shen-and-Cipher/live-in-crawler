@@ -1,5 +1,4 @@
-import subprocess
-
+from dotenv import load_dotenv
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
@@ -8,6 +7,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 class Crawler(object):
     def __init__(self):
+        load_dotenv(".env", override=True)
         options = self.set_option()
         self.browser = webdriver.Chrome(options=options)
         self.data_limit = 100

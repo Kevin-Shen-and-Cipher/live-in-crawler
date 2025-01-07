@@ -10,9 +10,9 @@ from src.crawler.Crawler import Crawler
 
 
 class ApartmentCrawler(ABC, Crawler):
-
     def __init__(self) -> None:
         super().__init__()
+        self.url = os.getenv("APARMENTS_URL")
 
     def DMS_to_DD(self, DMS: str):
         coord = DMS.split(" ")
@@ -226,11 +226,8 @@ class ApartmentCrawler(ABC, Crawler):
         return 1
 
     def post_data(self, data):
-        load_dotenv(".env", override=True)
-        url = os.getenv("APARMENTS_URL")
-        print("url ", url)
         return requests.post(
-            url=url,
+            url=self.url,
             headers={"Content-type": "application/json"},
             data=json.dumps(data, ensure_ascii=False).encode("utf-8"),
         )

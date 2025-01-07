@@ -170,20 +170,23 @@ class ApartmentHappy(ApartmentCrawler):
     def get_apartment_data(self, url: str):
         self.browser.get(url)
 
-        data = {
-            "url": url,
-            "name": self.get_name(),
-            "price": self.get_price(),
-            "address": self.get_address(),
-            "district": self.get_district(),
-            "coordinate": self.get_coordinate(),
-            "rent_type": self.get_rent_type(),
-            "apartment_type": self.get_aparment_type(),
-            "room_type": self.get_room_type(),
-            "restrict": self.get_restrict(),
-            "device": self.get_device(),
-            "surrounding_facility": self.get_surrounding_facility(),
-        }
+        try:
+            data = {
+                "url": url,
+                "name": self.get_name(),
+                "price": self.get_price(),
+                "address": self.get_address(),
+                "district": self.get_district(),
+                "coordinate": self.get_coordinate(),
+                "rent_type": self.get_rent_type(),
+                "apartment_type": self.get_aparment_type(),
+                "room_type": self.get_room_type(),
+                "restrict": self.get_restrict(),
+                "device": self.get_device(),
+                "surrounding_facility": self.get_surrounding_facility(),
+            }
+        except Exception as e:
+            return None
 
         if self.check_data(data):
             return None
